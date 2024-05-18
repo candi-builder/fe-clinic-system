@@ -18,4 +18,9 @@ export default defineNuxtConfig({
 
   devServerHandlers: [],
   hooks: {},
+  runtimeConfig: {
+    public: {
+      baseUrl: process.env.NUXT_BASE_URL
+    }
+  }
 });

@@ -2,24 +2,49 @@
 import { ref } from "vue";
 import Camera from "simple-vue-camera";
 import axios from "axios";
-
+import { PoliResponse, SelectItem } from "@/types/poli";
+import { number, string } from "yup";
 const isCameraOn = ref(false);
 const capturedImage = ref<string | null>(null);
 const isLoading = ref<boolean>(false);
-const baseUrl: string | undefined = "http://localhost:8000/api";
+
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseUrl;
+
+const selectItem = ref<SelectItem[]>();
+
+//form data registerpassien
 const registerPassein = reactive({
   nomor_bpjs: "",
   nama_passien: "",
   tanggal_lahir: "",
   alamat: "",
   faskes_tingkat_satu: "",
-  poli_id: 0,
+  poli_id: null as number | null,
   status: "menunggu",
 });
 
+const listPoli = ref<PoliResponse[]>([]);
+
+//handle camera
 const handleCamera = () => {
   isCameraOn.value = !isCameraOn.value;
 };
+
+async function getListPoli() {
+  const responsePoli = await axios.get(`${baseUrl}/poli`);
+  listPoli.value = responsePoli.data.data;
+
+  selectItem.value = listPoli.value.map((poli: PoliResponse) => ({
+    title: poli.poli_name,
+    value: poli.id,
+  }));
+
+  console.log("poli", listPoli.value);
+  console.log(selectItem.value);
+}
+
+//handle take picture
 async function takePhoto(photo: string) {
   capturedImage.value = photo;
   isCameraOn.value = false;
@@ -27,9 +52,11 @@ async function takePhoto(photo: string) {
   console.log("clicked");
 }
 
+//snackbar toogle
 const snackbarVisible = ref(false);
 const snackbarText = ref<string>("");
 
+//disable button if form data empty
 const isBtnDisabled = computed(() => {
   return (
     !registerPassein.nomor_bpjs ||
@@ -41,23 +68,38 @@ const isBtnDisabled = computed(() => {
     isLoading.value
   );
 });
+
+//function post register passien
 async function postRegisterPassien() {
-    snackbarVisible.value = true
+  snackbarVisible.value = true;
 
   isLoading.value = true;
   await axios
     .post(`${baseUrl}/passien/register-passien`, registerPassein)
     .then(function (response) {
       console.log(response.data.message);
-      snackbarText.value = response.data.message
+      snackbarText.value = response.data.message;
       isLoading.value = false;
+      console.log(response.data.message);
+      snackbarText.value = response.data.message;
+      isLoading.value = false;
+      registerPassein.nomor_bpjs = "";
+      registerPassein.nama_passien = "";
+      registerPassein.tanggal_lahir = "";
+      registerPassein.alamat = "";
+      registerPassein.faskes_tingkat_satu = "";
+      registerPassein.poli_id = 0;
+      registerPassein.status = "menunggu";
     })
     .catch(function (error) {
       console.log(error);
-      snackbarText.value = error.response.data.message
+      snackbarText.value = error.response.data.message;
       isLoading.value = false;
     });
 }
+onMounted(() => {
+  getListPoli();
+});
 </script>
 
 <template>
@@ -73,10 +115,10 @@ async function postRegisterPassien() {
       </v-btn>
     </v-col>
 
-    <v-col class="mb-4"  cols="12" v-if="isCameraOn">
+    <v-col class="mb-4" cols="12" v-if="isCameraOn">
       <camera :resolution="{ width: 375, height: 812 }" @snapshot="takePhoto">
       </camera>
-      <v-btn  color="primary" @click="snapshot">scan bpjs</v-btn>
+      <v-btn color="primary" @click="takePhoto">scan bpjs</v-btn>
     </v-col>
 
     <v-col cols="12" v-if="capturedImage">
@@ -148,14 +190,16 @@ async function postRegisterPassien() {
     </v-col>
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Poli</v-label>
-      <v-text-field
-        :value="registerPassein.poli_id"
-        @input="registerPassein.poli_id = parseInt($event.target.value)"
-        variant="outlined"
-        type="number"
-        hide-details
+      <v-select
+        label="Pilih Poli"
+        v-model="registerPassein.poli_id"
+        :items="selectItem"
         color="primary"
-      ></v-text-field>
+        item-text="title"
+        item-value="value"
+        variant="outlined"
+        @update:modelValue="onPoliChange"
+      ></v-select>
     </v-col>
 
     <v-col cols="12">

@@ -1,9 +1,9 @@
 import { UserSession } from "@/types/userSession";
-function saveUserSession(session: UserSession): void {
+export function saveUserSession(session: UserSession): void {
   sessionStorage.setItem("userSession", JSON.stringify(session));
 }
 
-function getUserSession(): UserSession | null {
+export function getUserSession(): UserSession | null {
   const sessionStr = sessionStorage.getItem("userSession");
   if (sessionStr) {
     try {
@@ -16,7 +16,4 @@ function getUserSession(): UserSession | null {
   return null;
 }
 
-module.exports = {
-  saveUserSession,
-  getUserSession,
-};
+

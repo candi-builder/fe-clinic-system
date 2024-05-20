@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
+import { saveUserSession, getUserSession } from "@/utils/session";
 const config = useRuntimeConfig();
 
 const loginRequest = reactive({
@@ -19,8 +20,7 @@ async function login() {
         snackbarVisible.value = true;
         snackbarText.value = response.data.message;
         isLoading.value = false;
-        console.log(response.data);
-        
+        saveUserSession(response.data.data);
       })
       .catch(function (error) {
         snackbarText.value = error.message;
@@ -28,7 +28,7 @@ async function login() {
       });
   } catch (error) {
     console.log(error);
-    snackbarText.value = "server bermasalah"
+    snackbarText.value = "server bermasalah";
     isLoading.value = false;
   }
 }

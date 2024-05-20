@@ -63,9 +63,7 @@ async function useOcr() {
     const responseOcr = response.data.result;
     let result = [];
     let alamatGabungan = "";
-    // Loop untuk mengambil data pada indeks ganjil hingga indeks ke-15
     for (let i = 0; i < responseOcr.length; i++) {
-      // Jika elemen saat ini mengandung kata kunci
       if (
         responseOcr[i] === "Nomor Kartu" ||
         responseOcr[i] === "Nama" ||
@@ -91,7 +89,6 @@ async function useOcr() {
       }
     }
 
-    console.log(result);
     registerPassein.nomor_bpjs = result[0];
     registerPassein.nama_passien = result[1];
     registerPassein.tanggal_lahir = result[3];
@@ -136,10 +133,8 @@ async function postRegisterPassien() {
   await axios
     .post(`${baseUrl}/passien/register-passien`, registerPassein)
     .then(function (response) {
-      console.log(response.data.message);
-      snackbarText.value = response.data.message;
+      snackbarVisible.value = true;
       isLoading.value = false;
-      console.log(response.data.message);
       snackbarText.value = response.data.message;
       isLoading.value = false;
       registerPassein.nomor_bpjs = "";
@@ -151,11 +146,9 @@ async function postRegisterPassien() {
       registerPassein.status = "menunggu";
     })
     .catch(function (error) {
-      console.log(error);
       snackbarText.value = error.response.data.message;
       isLoading.value = false;
     });
-  console.log(imageToScan);
 }
 
 onMounted(() => {

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import Camera from "simple-vue-camera";
 import axios from "axios";
 import { PoliResponse, SelectItem } from "@/types/poli";
-import { number, string } from "yup";
 const isCameraOn = ref(false);
 const capturedImage = ref<string | null>(null);
 const isLoading = ref<boolean>(false);
@@ -24,12 +22,13 @@ const registerPassein = reactive({
   status: "menunggu",
 });
 
-const listPoli = ref<PoliResponse[]>([]);
-
 //handle camera
 const handleCamera = () => {
   isCameraOn.value = !isCameraOn.value;
 };
+
+//get list poli for selectitem
+const listPoli = ref<PoliResponse[]>([]);
 
 async function getListPoli() {
   const responsePoli = await axios.get(`${baseUrl}/poli`);
@@ -39,17 +38,77 @@ async function getListPoli() {
     title: poli.poli_name,
     value: poli.id,
   }));
+}
+//scan bpjs feature
+const apiOcrScan = "http://localhost:8000/scan";
+const imageToScan = reactive({
+  file: [],
+});
 
-  console.log("poli", listPoli.value);
-  console.log(selectItem.value);
+async function useOcr() {
+  if (!imageToScan.file) {
+    console.log("No file selected");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", imageToScan.file[0]);
+  isLoading.value = true;
+  try {
+    const response = await axios.post(apiOcrScan, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    const responseOcr = response.data.result;
+    let result = [];
+    let alamatGabungan = "";
+    // Loop untuk mengambil data pada indeks ganjil hingga indeks ke-15
+    for (let i = 0; i < responseOcr.length; i++) {
+      // Jika elemen saat ini mengandung kata kunci
+      if (
+        responseOcr[i] === "Nomor Kartu" ||
+        responseOcr[i] === "Nama" ||
+        responseOcr[i] === "Tanggal lahir" ||
+        responseOcr[i] === "NIK" ||
+        responseOcr[i] === "Faskes Tingkat"
+      ) {
+        // Push elemen berikutnya ke array baru
+        result.push(responseOcr[i + 1]);
+      }
+      if (responseOcr[i] === "Alamat") {
+        let j = i + 1;
+        alamatGabungan = responseOcr[j];
+        while (
+          responseOcr[j + 1] !== "Tanggal lahir" &&
+          j < responseOcr.length - 1
+        ) {
+          j++;
+          alamatGabungan += " " + responseOcr[j];
+        }
+        result.push(alamatGabungan);
+        i = j;
+      }
+    }
+
+    console.log(result);
+    registerPassein.nomor_bpjs = result[0];
+    registerPassein.nama_passien = result[1];
+    registerPassein.tanggal_lahir = result[3];
+    registerPassein.faskes_tingkat_satu = result[6];
+    registerPassein.alamat = alamatGabungan;
+    isLoading.value = false;
+  } catch (error) {
+    isLoading.value = false;
+
+    console.error("There was an error!", error);
+  }
 }
 
 //handle take picture
 async function takePhoto(photo: string) {
   capturedImage.value = photo;
   isCameraOn.value = false;
-  console.log(photo);
-  console.log("clicked");
 }
 
 //snackbar toogle
@@ -96,7 +155,9 @@ async function postRegisterPassien() {
       snackbarText.value = error.response.data.message;
       isLoading.value = false;
     });
+  console.log(imageToScan);
 }
+
 onMounted(() => {
   getListPoli();
 });
@@ -110,7 +171,7 @@ onMounted(() => {
       :timeout="2000"
     ></MySnackbar>
     <v-col cols="12">
-      <v-btn color="primary" size="large" block flat @click="handleCamera">
+      <v-btn  color="primary" size="large" block flat @click="handleCamera">
         mulai OCR
       </v-btn>
     </v-col>
@@ -131,13 +192,15 @@ onMounted(() => {
     </v-col>
 
     <v-col cols="12">
-      <v-label class="font-weight-bold mb-1">Kartu Bpjs</v-label>
-      <v-text-field
-        type="file"
+      <v-file-input
+        v-model="imageToScan.file"
+        label="file kartu"
         variant="outlined"
-        hide-details
         color="primary"
-      ></v-text-field>
+        accept="image/*"
+        prepend-icon="mdi-camera"
+      ></v-file-input>
+      <v-btn :loading="isLoading"  color="primary"  @click="useOcr">Scan</v-btn>
     </v-col>
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Nomor BPJS</v-label>
@@ -198,7 +261,6 @@ onMounted(() => {
         item-text="title"
         item-value="value"
         variant="outlined"
-        @update:modelValue="onPoliChange"
       ></v-select>
     </v-col>
 

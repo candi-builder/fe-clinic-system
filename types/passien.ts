@@ -1,4 +1,4 @@
-export type passienResponse = {
+export type PassienResponse = {
   passien_id: number;
   nik: string;
   nomor_bpjs: string;

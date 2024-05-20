@@ -19,9 +19,20 @@ const emit = defineEmits(["update:modelValue"]);
 const closeSnackbar = () => {
   emit("update:modelValue", false);
 };
+console.log(props.modelValue);
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (newVal) {
+      console.log("execute");
+      setTimeout(closeSnackbar, props.timeout);
+    }
+  }
+);
 </script>
 <template>
-  <v-snackbar v-model="props.modelValue" :timeout="props.timeout">
+  <v-snackbar v-model="props.modelValue">
     {{ props.text }}
 
     <template v-slot:actions>

@@ -21,7 +21,6 @@ const registerPassein = reactive({
   poli_id: null as number | null,
   status: "menunggu",
 });
-
 //handle camera
 const handleCamera = () => {
   isCameraOn.value = !isCameraOn.value;
@@ -31,13 +30,17 @@ const handleCamera = () => {
 const listPoli = ref<PoliResponse[]>([]);
 
 async function getListPoli() {
-  const responsePoli = await axios.get(`${baseUrl}/poli`);
+  const responsePoli = await axios.get(`${baseUrl}/poli/member`);
   listPoli.value = responsePoli.data.data;
 
   selectItem.value = listPoli.value.map((poli: PoliResponse) => ({
-    title: poli.poli_name,
+    title: `${poli.poli_name} - ${poli.doctor}`,
     value: poli.id,
   }));
+}
+
+async function isNumber(data: string | number) {
+  console.log(typeof data);
 }
 //scan bpjs feature
 const apiOcrScan = "http://localhost:8000/scan";
@@ -130,6 +133,8 @@ async function postRegisterPassien() {
   snackbarVisible.value = true;
 
   isLoading.value = true;
+  console.log(typeof registerPassein.poli_id);
+  registerPassein.poli_id = Number(registerPassein.poli_id);
   await axios
     .post(`${baseUrl}/passien/register-passien`, registerPassein)
     .then(function (response) {
@@ -142,8 +147,7 @@ async function postRegisterPassien() {
       registerPassein.tanggal_lahir = "";
       registerPassein.alamat = "";
       registerPassein.faskes_tingkat_satu = "";
-      registerPassein.poli_id = 0;
-      registerPassein.status = "menunggu";
+      registerPassein.status = "WAITING";
     })
     .catch(function (error) {
       snackbarText.value = error.response.data.message;
@@ -164,7 +168,7 @@ onMounted(() => {
       :timeout="2000"
     ></MySnackbar>
     <v-col cols="12">
-      <v-btn  color="primary" size="large" block flat @click="handleCamera">
+      <v-btn color="primary" size="large" block flat @click="handleCamera">
         mulai OCR
       </v-btn>
     </v-col>
@@ -193,7 +197,7 @@ onMounted(() => {
         accept="image/*"
         prepend-icon="mdi-camera"
       ></v-file-input>
-      <v-btn :loading="isLoading"  color="primary"  @click="useOcr">Scan</v-btn>
+      <v-btn :loading="isLoading" color="primary" @click="useOcr">Scan</v-btn>
     </v-col>
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Nomor BPJS</v-label>

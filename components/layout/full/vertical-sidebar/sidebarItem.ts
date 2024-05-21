@@ -22,9 +22,9 @@ export interface menu {
 const sidebarItem: menu[] = [
     { header: 'Home' },
     {
-        title: 'Dashboard',
+        title: 'Passien Menunggu',
         icon: LayoutDashboardIcon,
-        to: '/'
+        to: '/dokter'
     },
     { header: 'utilities' },
     {

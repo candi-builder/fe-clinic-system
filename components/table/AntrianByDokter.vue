@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { productPerformance } from "@/data/dashboard/dashboardData";
 import { PassienResponse } from "@/types/passien";
+import axios from "axios";
 const listPassien = ref<PassienResponse[]>([]);
 const chipColor = (status: string): string => {
   if (status == "WAITING") {
@@ -11,6 +11,25 @@ const chipColor = (status: string): string => {
   }
   return "primary";
 };
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseUrl;
+const doctorId = getUserSession();
+async function getListAntrian() {
+  try {
+    axios
+      .get(`${baseUrl}/antrian/pemeriksaan/${doctorId?.uuid}`)
+      .then(function (response) {
+        listPassien.value = response.data.data;
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  } catch (error) {}
+}
+onMounted(() => {
+  getListAntrian();
+});
 </script>
 <template>
   <v-card elevation="10" class="">
@@ -20,16 +39,22 @@ const chipColor = (status: string): string => {
       >
       <v-table class="month-table">
         <thead>
-          <tr>
+          <tr class="bg-primary">
             <th class="text-subtitle-1 font-weight-bold">nomor bpjs</th>
             <th class="text-subtitle-1 font-weight-bold">nama passien</th>
             <th class="text-subtitle-1 font-weight-bold">dokter</th>
             <th class="text-subtitle-1 font-weight-bold">poli</th>
-            <th class="text-subtitle-1 font-weight-bold text-right">status</th>
+            <th class="text-subtitle-1 font-weight-bold">status</th>
           </tr>
         </thead>
         <tbody>
+          <tr v-if="listPassien.length < 1">
+            <td colspan="5">
+              <p class="text-15 font-weight-medium text-center">Belum ada antrian</p>
+            </td>
+          </tr>
           <tr
+            v-else
             v-for="item in listPassien"
             :key="item.nomor_bpjs"
             class="month-item"
@@ -58,7 +83,6 @@ const chipColor = (status: string): string => {
                 >{{ item.status }}</v-chip
               >
             </td>
-            
           </tr>
         </tbody>
       </v-table>

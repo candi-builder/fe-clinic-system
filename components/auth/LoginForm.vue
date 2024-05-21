@@ -7,10 +7,14 @@ const loginRequest = reactive({
   username: "",
   password: "",
 });
+const router = useRouter();
 //snackbar toogle
 const snackbarVisible = ref(false);
 const snackbarText = ref<string>("");
 const isLoading = ref<boolean>(false);
+async function navigationBaseOnRole(role: string) {
+  router.push({ path : `/${role.toLocaleLowerCase()}`});
+}
 async function login() {
   isLoading.value = true;
   try {
@@ -21,6 +25,7 @@ async function login() {
         snackbarText.value = response.data.message;
         isLoading.value = false;
         saveUserSession(response.data.data);
+        navigationBaseOnRole(response.data.data.role);
       })
       .catch(function (error) {
         snackbarText.value = error.message;

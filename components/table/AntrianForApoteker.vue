@@ -13,11 +13,10 @@ const chipColor = (status: string): string => {
 };
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseUrl;
-const doctorId = getUserSession();
 async function getListAntrian() {
   try {
     axios
-      .get(`${baseUrl}/antrian/pemeriksaan/${doctorId?.uuid}`)
+      .get(`${baseUrl}/antrian/pickup`)
       .then(function (response) {
         listPassien.value = response.data.data;
         console.log(response.data);

@@ -39,9 +39,7 @@ async function getListPoli() {
   }));
 }
 
-async function isNumber(data: string | number) {
-  console.log(typeof data);
-}
+
 //scan bpjs feature
 const apiOcrScan = "http://localhost:8000/scan";
 const imageToScan = reactive({
@@ -133,7 +131,6 @@ async function postRegisterPassien() {
   snackbarVisible.value = true;
 
   isLoading.value = true;
-  console.log(typeof registerPassein.poli_id);
   registerPassein.poli_id = Number(registerPassein.poli_id);
   await axios
     .post(`${baseUrl}/passien/register-passien`, registerPassein)
@@ -157,6 +154,7 @@ async function postRegisterPassien() {
 
 onMounted(() => {
   getListPoli();
+  
 });
 </script>
 

@@ -19,13 +19,11 @@ const emit = defineEmits(["update:modelValue"]);
 const closeSnackbar = () => {
   emit("update:modelValue", false);
 };
-console.log(props.modelValue);
 
 watch(
   () => props.modelValue,
   (newVal) => {
     if (newVal) {
-      console.log("execute");
       setTimeout(closeSnackbar, props.timeout);
     }
   }

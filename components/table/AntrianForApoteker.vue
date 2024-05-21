@@ -35,7 +35,7 @@ onMounted(() => {
   <v-card elevation="10" class="">
     <v-card-item class="pa-6">
       <v-card-title class="text-h5 pt-sm-2 pb-7"
-        >List Antrian Passien Periksa</v-card-title
+        >List Antrian Passien</v-card-title
       >
       <v-table class="month-table">
         <thead>
@@ -44,13 +44,17 @@ onMounted(() => {
             <th class="text-subtitle-1 font-weight-bold">nama passien</th>
             <th class="text-subtitle-1 font-weight-bold">dokter</th>
             <th class="text-subtitle-1 font-weight-bold">poli</th>
+            <th class="text-subtitle-1 font-weight-bold">hasil diagnosa</th>
+            <th class="text-subtitle-1 font-weight-bold">resep obat</th>
             <th class="text-subtitle-1 font-weight-bold">status</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="listPassien.length < 1">
             <td colspan="5">
-              <p class="text-15 font-weight-medium text-center">Belum ada antrian</p>
+              <p class="text-15 font-weight-medium text-center">
+                Belum ada antrian
+              </p>
             </td>
           </tr>
           <tr
@@ -74,6 +78,16 @@ onMounted(() => {
             </td>
             <td>
               <h6 class="text-body-1 font-weight-bold">{{ item.poli }}</h6>
+            </td>
+            <td>
+              <h6 class="text-body-1 font-weight-bold">
+                {{ item.hasil_diagnosa }}
+              </h6>
+            </td>
+            <td>
+              <h6 class="text-body-1 font-weight-bold">
+                {{ item.keterangan_resep }}
+              </h6>
             </td>
             <td>
               <v-chip

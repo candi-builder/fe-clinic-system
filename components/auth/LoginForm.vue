@@ -13,7 +13,7 @@ const snackbarVisible = ref(false);
 const snackbarText = ref<string>("");
 const isLoading = ref<boolean>(false);
 async function navigationBaseOnRole(role: string) {
-  router.push({ path : `/${role.toLocaleLowerCase()}`});
+  router.push({ path: `/${role.toLocaleLowerCase()}` });
 }
 async function login() {
   isLoading.value = true;
@@ -21,11 +21,15 @@ async function login() {
     axios
       .post(`${config.public.baseUrl}/auth/login`, loginRequest)
       .then(function (response) {
+        console.log(response);
+
         snackbarVisible.value = true;
         snackbarText.value = response.data.message;
         isLoading.value = false;
-        saveUserSession(response.data.data);
-        navigationBaseOnRole(response.data.data.role);
+        if (response.data.data) {
+          saveUserSession(response.data.data);
+          navigationBaseOnRole(response.data.data.role);
+        }
       })
       .catch(function (error) {
         snackbarText.value = error.message;

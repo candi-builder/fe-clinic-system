@@ -1,6 +1,9 @@
 <script setup lang="ts">
 /*Call Components*/
 import AntrianByDokter from "@/components/table/AntrianByDokter.vue";
+definePageMeta({
+  middleware:  ["auth", "dokter"],
+});
 </script>
 <template>
   <v-row>

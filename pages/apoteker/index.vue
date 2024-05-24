@@ -1,6 +1,9 @@
 <script setup lang="ts">
 /*Call Components*/
 import AntrianForApoteker from "~~/components/table/AntrianForApoteker.vue";
+definePageMeta({
+  middleware: ["auth", "apoteker"],
+});
 </script>
 <template>
   <v-row>

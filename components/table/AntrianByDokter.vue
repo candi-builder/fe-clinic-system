@@ -15,6 +15,13 @@ const dialog = ref<boolean>(false);
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseUrl;
 const doctorId = getUserSession();
+const diagnosaRequest = reactive({
+  pasien_id: 0,
+  keterangan_resep: "",
+  hasil_diagnosa: "",
+  status: "PICKUP",
+  doctor: doctorId?.uuid,
+});
 async function getListAntrian() {
   try {
     axios
@@ -40,7 +47,7 @@ function cekStatus(status: string): boolean {
   return true;
 }
 
-async function checkPassien(idAntrian: string) {
+async function checkPassien(idAntrian: number) {
   axios
     .post(`${baseUrl}/doctor/update-pasien/${idAntrian}`)
     .then(function (response) {
@@ -52,8 +59,27 @@ async function checkPassien(idAntrian: string) {
     });
 }
 
-function openFormDiagnosa() {
+function openFormDiagnosa(pasien_id: string) {
   dialog.value = true;
+  diagnosaRequest.pasien_id = parseInt(pasien_id, 10);
+}
+
+async function diagnosaPassien() {
+  try {
+    axios
+      .post(`${baseUrl}/doctor/diagnosa`, diagnosaRequest)
+      .then(function (response) {
+        listPassien.value = response.data.data;
+        console.log(response.data);
+        getListAntrian();
+        dialog.value = false;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  } catch (error) {
+    console.log(error);
+  }
 }
 onMounted(() => {
   getListAntrian();
@@ -117,7 +143,7 @@ onMounted(() => {
             <td>
               <v-btn
                 v-show="!cekStatus(item.status)"
-                @click="checkPassien(item.passien_id)"
+                @click="checkPassien(item.id)"
                 :disabled="index !== 0"
                 color="primary"
               >
@@ -125,7 +151,7 @@ onMounted(() => {
               </v-btn>
               <v-btn
                 v-show="cekStatus(item.status)"
-                @click="openFormDiagnosa()"
+                @click="openFormDiagnosa(item.passien_id)"
                 :disabled="index !== 0"
                 color="primary"
               >
@@ -141,6 +167,7 @@ onMounted(() => {
             <v-row dense>
               <v-col cols="12">
                 <v-textarea
+                  v-model="diagnosaRequest.hasil_diagnosa"
                   color="deep-purple"
                   label="hasil diagnosa"
                   rows="4"
@@ -149,8 +176,9 @@ onMounted(() => {
                 ></v-textarea>
               </v-col>
 
-              <v-col cols="12" >
+              <v-col cols="12">
                 <v-textarea
+                  v-model="diagnosaRequest.keterangan_resep"
                   color="deep-purple"
                   label="Resep Obat"
                   rows="4"
@@ -158,11 +186,7 @@ onMounted(() => {
                   auto-grow
                 ></v-textarea>
               </v-col>
-
-            
             </v-row>
-
-            
           </v-card-text>
 
           <v-divider></v-divider>
@@ -170,14 +194,17 @@ onMounted(() => {
           <v-card-actions>
             <v-spacer></v-spacer>
 
-            <v-btn text="Close" variant="plain" @click="dialog = false">tutup</v-btn>
+            <v-btn text="Close" variant="plain" @click="dialog = false"
+              >tutup</v-btn
+            >
 
             <v-btn
               color="primary"
               text="Save"
               variant="tonal"
-              @click="dialog = false"
-            >kirim</v-btn>
+              @click="diagnosaPassien()"
+              >kirim</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-dialog>

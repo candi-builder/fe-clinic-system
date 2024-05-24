@@ -19,46 +19,20 @@ export interface menu {
     subCaption?: string;
 }
 
-const sidebarItem: menu[] = [
+export const sidebarItemDokter: menu[] = [
     { header: 'Home' },
     {
-        title: 'Passien Menunggu',
+        title: 'antrian passien',
         icon: LayoutDashboardIcon,
         to: '/dokter'
     },
-    { header: 'utilities' },
+];
+export const sidebarItemApoteker: menu[] = [
+    { header: 'Home' },
     {
-        title: 'Typography',
-        icon: TypographyIcon,
-        to: '/ui/typography'
-    },
-    {
-        title: 'Shadow',
-        icon: CopyIcon,
-        to: '/ui/shadow'
-    },
-    { header: 'auth' },
-    {
-        title: 'Login',
-        icon: LoginIcon,
-        to: '/auth/login'
-    },
-    {
-        title: 'Register',
-        icon: UserPlusIcon,
-        to: '/auth/register'
-    },
-    { header: 'Extra' },
-    {
-        title: 'Icons',
-        icon: MoodHappyIcon,
-        to: '/icons'
-    },
-    {
-        title: 'Sample Page',
-        icon: ApertureIcon,
-        to: '/sample-page'
+        title: 'antrian passien',
+        icon: LayoutDashboardIcon,
+        to: '/dokter'
     },
 ];
 
-export default sidebarItem;

@@ -4,6 +4,7 @@ import {
   menu,
   sidebarItemApoteker,
   sidebarItemDokter,
+  sidebarItemSuperadmin,
 } from "@/components/layout/full/vertical-sidebar/sidebarItem";
 import { Menu2Icon } from "vue-tabler-icons";
 const role = getUserSession();
@@ -14,7 +15,7 @@ const checkUserRole = (): menu[] => {
   if (role?.role === "APOTEKER") {
     return sidebarItemApoteker;
   }
-  return sidebarItemDokter;
+  return sidebarItemSuperadmin;
 };
 
 // Menggunakan computed property agar TypeScript bisa mengenali tipe data dengan lebih baik

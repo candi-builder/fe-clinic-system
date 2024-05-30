@@ -12,7 +12,11 @@ const router = useRouter();
 const snackbarVisible = ref(false);
 const snackbarText = ref<string>("");
 const isLoading = ref<boolean>(false);
+  console.log(getUserSession());
+
 async function navigationBaseOnRole(role: string) {
+  console.log(role.toLocaleLowerCase());
+
   router.push({ path: `/${role.toLocaleLowerCase()}` });
 }
 async function login() {

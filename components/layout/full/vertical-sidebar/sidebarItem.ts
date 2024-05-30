@@ -35,4 +35,17 @@ export const sidebarItemApoteker: menu[] = [
         to: '/dokter'
     },
 ];
+export const sidebarItemSuperadmin: menu[] = [
+    { header: 'Home' },
+    {
+        title: 'management user',
+        icon: LayoutDashboardIcon,
+        to: '/superadmin/management-user'
+    },
+    {
+        title: 'management poli',
+        icon: LayoutDashboardIcon,
+        to: '/superadmin/management-poli'
+    },
+];
 

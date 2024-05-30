@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-  middleware:  ["auth", "resepsionis"],
+  middleware: ["auth", "resepsionis"],
   layout: "blank",
 });
 </script>

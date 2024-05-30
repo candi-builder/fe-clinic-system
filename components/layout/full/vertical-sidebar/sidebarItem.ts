@@ -45,7 +45,7 @@ export const sidebarItemSuperadmin: menu[] = [
     {
         title: 'management poli',
         icon: LayoutDashboardIcon,
-        to: '/superadmin/management-poli'
+        to: '/superadmin/poli'
     },
 ];
 

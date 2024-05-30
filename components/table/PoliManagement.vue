@@ -7,6 +7,7 @@ const snackbarVisible = ref(false);
 const snackbarText = ref<string>("");
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseUrl;
+const router = useRouter();
 const poliRequest = reactive({
   name:""
 })
@@ -42,6 +43,10 @@ async function addPoli() {
       });
   } catch (error) {}
 } 
+
+async function goToDetail(id:string) {
+  router.push(`poli/${id}`)
+}
 onMounted(()=>{
   getListPoli()
 })
@@ -88,7 +93,7 @@ onMounted(()=>{
             </td>
            
             <td class="d-flex gap-2">
-              <v-btn  color="primary">Detail</v-btn>
+              <v-btn @click="goToDetail(item.id)" color="primary">Detail</v-btn>
             </td>
           </tr>
         </tbody>

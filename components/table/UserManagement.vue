@@ -6,20 +6,21 @@ const listUser = ref<UserResponse[]>([]);
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseUrl;
 const dialog = ref<boolean>(false);
-  const selectItem = [
-    {
-      title:"Dokter",
-      value:"DOKTER",
-    },
-    {
-      title:"Resepsionis",
-      value:"RESEPSIONIS",
-    },
-    {
-      title:"Apoteker",
-      value:"APOTEKER",
-    },
-  ];
+const dialogPecat = ref<boolean>(false);
+const selectItem = [
+  {
+    title: "Dokter",
+    value: "DOKTER",
+  },
+  {
+    title: "Resepsionis",
+    value: "RESEPSIONIS",
+  },
+  {
+    title: "Apoteker",
+    value: "APOTEKER",
+  },
+];
 const userRequest = reactive({
   username: "",
   full_name: "",
@@ -41,15 +42,48 @@ async function getListAntrian() {
 function openFormAddUser() {
   dialog.value = true;
 }
-async function registerUser(){
+async function registerUser() {
   axios
-      .post(`${baseUrl}/auth/register-user`,userRequest)
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    .post(`${baseUrl}/auth/register-user`, userRequest)
+    .then(function (response) {
+      console.log(response.data);
+      getListAntrian();
+      dialog.value = false;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+const selectedUserId = ref<string | null>(null);
+
+async function pecatPegawai() {
+  axios
+    .delete(`${baseUrl}/users/${selectedUserId.value}`)
+    .then(function (response) {
+      getListAntrian();
+      dialogPecat.value = false
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+
+async function resetPassword(idPegawai: string) {
+  axios
+    .put(`${baseUrl}/users/${idPegawai}`,{password: "isvill15001"})
+    .then(function (response) {
+      console.log(response.data);
+      
+      getListAntrian();
+      dialogPecat.value = false
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+async function openDialogPecat(idPegawai: string) {
+  selectedUserId.value = idPegawai
+  dialogPecat.value = true
 }
 
 onMounted(() => {
@@ -100,8 +134,8 @@ onMounted(() => {
               <h6 class="text-body-1 font-weight-bold">{{ item.role }}</h6>
             </td>
             <td class="d-flex gap-2">
-              <v-btn color="primary">Reset Password</v-btn>
-              <v-btn color="error">pecat</v-btn>
+              <v-btn @click="resetPassword(item.uuid)" color="primary">Reset Password</v-btn>
+              <v-btn @click="openDialogPecat(item.uuid)" color="error">pecat</v-btn>
             </td>
           </tr>
         </tbody>
@@ -162,6 +196,29 @@ onMounted(() => {
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog
+      v-model="dialogPecat"
+      max-width="400"
+      persistent
+    >
+      <v-card
+        prepend-icon="mdi-account-question"
+        text="yakin ingin menghapus user ini."
+        title="Hapus User?"
+      >
+        <template v-slot:actions>
+          <v-spacer></v-spacer>
+
+          <v-btn variant="elevated" color="warning" @click="dialogPecat = false">
+            batal
+          </v-btn>
+
+          <v-btn variant="flat" color="error" @click="pecatPegawai">
+            Iya
+          </v-btn>
+        </template>
+      </v-card>
+    </v-dialog>
     </v-card-item>
   </v-card>
 </template>

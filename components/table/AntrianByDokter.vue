@@ -67,9 +67,8 @@ function openFormDiagnosa(pasien_id: string) {
 async function diagnosaPassien() {
   try {
     axios
-      .post(`${baseUrl}/doctor/diagnosa`, diagnosaRequest)
+      .post(`${baseUrl}/doctor/diagnosa/${diagnosaRequest.pasien_id}`, diagnosaRequest)
       .then(function (response) {
-        listPassien.value = response.data.data;
         console.log(response.data);
         getListAntrian();
         dialog.value = false;

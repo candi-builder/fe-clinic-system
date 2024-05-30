@@ -7,6 +7,8 @@ const config = useRuntimeConfig();
 const baseUrl = config.public.baseUrl;
 const dialog = ref<boolean>(false);
 const dialogPecat = ref<boolean>(false);
+const snackbarVisible = ref(false);
+const snackbarText = ref<string>("");
 const selectItem = [
   {
     title: "Dokter",
@@ -32,7 +34,6 @@ async function getListAntrian() {
       .get(`${baseUrl}/users`)
       .then(function (response) {
         listUser.value = response.data.data;
-        console.log(response.data);
       })
       .catch(function (error) {
         console.log(error);
@@ -49,6 +50,8 @@ async function registerUser() {
       console.log(response.data);
       getListAntrian();
       dialog.value = false;
+      snackbarText.value =  response.data.message 
+      snackbarVisible.value = true
     })
     .catch(function (error) {
       console.log(error);
@@ -61,6 +64,8 @@ async function pecatPegawai() {
     .delete(`${baseUrl}/users/${selectedUserId.value}`)
     .then(function (response) {
       getListAntrian();
+      snackbarText.value =  response.data.message 
+      snackbarVisible.value = true
       dialogPecat.value = false
     })
     .catch(function (error) {
@@ -75,6 +80,8 @@ async function resetPassword(idPegawai: string) {
       console.log(response.data);
       
       getListAntrian();
+      snackbarText.value = 'password berhasil di reset menjadi isvill15001'
+      snackbarVisible.value = true
       dialogPecat.value = false
     })
     .catch(function (error) {
@@ -91,6 +98,11 @@ onMounted(() => {
 });
 </script>
 <template>
+   <MySnackbar
+      v-model:modelValue="snackbarVisible"
+      :text="snackbarText"
+      :timeout="2000"
+    ></MySnackbar>
   <v-card elevation="10" class="">
     <v-card-item class="pa-6">
       <div class="d-flex justify-space-between align-center">

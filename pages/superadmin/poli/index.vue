@@ -1,6 +1,5 @@
 <script setup lang="ts">
-/*Call Components*/
-import UserTable from "@/components/table/UserManagement.vue";
+import PoliTable from "@/components/table/PoliManagement.vue";
 definePageMeta({
   middleware: ["auth", "superadmin"],
 });
@@ -11,9 +10,10 @@ definePageMeta({
       <v-row>
         <!-- Sales overview -->
         <v-col cols="12">
-          <UserTable />
+          <PoliTable />
         </v-col>
       </v-row>
     </v-col>
+
   </v-row>
 </template>

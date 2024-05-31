@@ -40,12 +40,12 @@ export const sidebarItemSuperadmin: menu[] = [
     {
         title: 'management user',
         icon: LayoutDashboardIcon,
-        to: '/superadmin/management-user'
+        to: '/superadmin'
     },
     {
         title: 'management poli',
         icon: LayoutDashboardIcon,
-        to: '/superadmin/management-poli'
+        to: '/superadmin/poli'
     },
 ];
 

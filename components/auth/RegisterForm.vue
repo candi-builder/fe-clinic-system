@@ -35,7 +35,7 @@ async function getListPoli() {
 
   selectItem.value = listPoli.value.map((poli: PoliResponse) => ({
     title: `${poli.poli_name} - ${poli.doctor}`,
-    value: poli.id,
+    value: parseInt(poli.id,10),
   }));
 }
 

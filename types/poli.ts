@@ -10,5 +10,5 @@ export type ListPoliResponse = {
 }
 export type SelectItem = {
   title: string;
-  value: number;
+  value: number | string;
 };

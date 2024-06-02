@@ -10,7 +10,19 @@ const config = useRuntimeConfig();
 const baseUrl = config.public.baseUrl;
 
 const selectItem = ref<SelectItem[]>();
-
+const videoRef = ref<HTMLVideoElement | null>(null);
+const canvasRef = ref<HTMLCanvasElement | null>(null);
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (videoRef.value) {
+      videoRef.value.srcObject = stream;
+      videoRef.value.play();
+    }
+  } catch (error) {
+    console.error("Error accessing camera: ", error);
+  }
+}
 //form data registerpassien
 const registerPassein = reactive({
   nomor_bpjs: "",
@@ -35,10 +47,40 @@ async function getListPoli() {
 
   selectItem.value = listPoli.value.map((poli: PoliResponse) => ({
     title: `${poli.poli_name} - ${poli.doctor}`,
-    value: parseInt(poli.id,10),
+    value: parseInt(poli.id, 10),
   }));
 }
+async function captureImage() {
+  if (!videoRef.value || !canvasRef.value) return;
 
+  const context = canvasRef.value.getContext("2d");
+  if (context) {
+    context.drawImage(
+      videoRef.value,
+      0,
+      0,
+      canvasRef.value.width,
+      canvasRef.value.height
+    );
+    const dataURL = canvasRef.value.toDataURL("image/png");
+
+    // Convert dataURL to Blob and then to File
+    const blob = dataURLToBlob(dataURL);
+    const file = new File([blob], "capture.png", { type: "image/png" });
+
+    useOcr(file);
+  }
+}
+function dataURLToBlob(dataURL: string) {
+  const byteString = atob(dataURL.split(",")[1]);
+  const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+}
 
 //scan bpjs feature
 const apiOcrScan = "http://localhost:8000/scan";
@@ -46,15 +88,11 @@ const imageToScan = reactive({
   file: [],
 });
 
-async function useOcr() {
-  if (!imageToScan.file) {
-    console.log("No file selected");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", imageToScan.file[0]);
+async function useOcr(imageBlob: Blob) {
   isLoading.value = true;
+  const formData = new FormData();
+  formData.append("file", imageBlob);
+
   try {
     const response = await axios.post(apiOcrScan, formData, {
       headers: {
@@ -152,9 +190,14 @@ async function postRegisterPassien() {
     });
 }
 
+function cameraTogle() {
+  isCameraOn.value = !isCameraOn.value;
+  if (isCameraOn.value) {
+    startCamera();
+  }
+}
 onMounted(() => {
   getListPoli();
-  
 });
 </script>
 
@@ -165,28 +208,40 @@ onMounted(() => {
       :text="snackbarText"
       :timeout="2000"
     ></MySnackbar>
+
     <v-col cols="12">
-      <v-btn color="primary" size="large" block flat @click="handleCamera">
-        mulai OCR
+      <v-btn color="primary" size="large" block flat @click="cameraTogle">
+        {{ isCameraOn?  'Close Camera' : 'Open Camera' }}
       </v-btn>
     </v-col>
-
-    <v-col class="mb-4" cols="12" v-if="isCameraOn">
+    <v-col v-show="isCameraOn" cols="12">
+      <video ref="videoRef" width="400" height="300"></video>
+      <canvas
+        ref="canvasRef"
+        width="400"
+        height="300"
+        style="display: none"
+      ></canvas>
+      <v-btn :loading="isLoading" color="primary" @click="captureImage"
+        >Scan</v-btn
+      >
+    </v-col>
+    <!-- <v-col class="mb-4" cols="12" v-if="isCameraOn">
       <camera :resolution="{ width: 375, height: 812 }" @snapshot="takePhoto">
       </camera>
       <v-btn color="primary" @click="takePhoto">scan bpjs</v-btn>
-    </v-col>
+    </v-col> -->
 
-    <v-col cols="12" v-if="capturedImage">
+    <!-- <v-col cols="12" v-if="capturedImage">
       <h2>Captured Photo:</h2>
       <img
         :src="capturedImage"
         alt="Captured Image"
         style="max-width: 100%; margin-top: 10px"
       />
-    </v-col>
+    </v-col> -->
 
-    <v-col cols="12">
+    <!-- <v-col cols="12">
       <v-file-input
         v-model="imageToScan.file"
         label="file kartu"
@@ -196,7 +251,7 @@ onMounted(() => {
         prepend-icon="mdi-camera"
       ></v-file-input>
       <v-btn :loading="isLoading" color="primary" @click="useOcr">Scan</v-btn>
-    </v-col>
+    </v-col> -->
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Nomor BPJS</v-label>
       <v-text-field

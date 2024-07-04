@@ -22,8 +22,6 @@ async function getListPoli() {
           listPoli.value = response.data.data;
 
         }
-       
-        
       })
       .catch(function (error) {
 

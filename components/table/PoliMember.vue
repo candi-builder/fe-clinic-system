@@ -25,8 +25,12 @@ async function getListPoli() {
     axios
       .get(`${baseUrl}/poli/${detailParam}`)
       .then(function (response) {
-        listPoli.value = response.data.data;
-        console.log(response.data);
+        if ( response.data.data == undefined) {
+          listPoli.value = []
+        }else{
+
+          listPoli.value = response.data.data;
+        }
       })
       .catch(function (error) {
         console.log(error);
@@ -54,6 +58,8 @@ async function getListDoctor() {
 }
 
 async function addPoli() {
+  console.log(detailParam);
+  
   try {
     axios
       .post(`${baseUrl}/poli/add-member/${detailParam}`, poliRequest)

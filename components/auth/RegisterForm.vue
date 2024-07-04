@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Camera from "simple-vue-camera";
 import axios from "axios";
 import { PoliResponse, SelectItem } from "@/types/poli";
 const isCameraOn = ref(false);
@@ -14,7 +13,7 @@ const videoRef = ref<HTMLVideoElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
 const isBpjsTypeKis = ref<boolean>(true)
-
+  const previewImage = ref<string>("");
 async function startCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -39,10 +38,7 @@ const registerPassein = reactive({
   nik:null as string | null
 });
 
-//handle camera
-const handleCamera = () => {
-  isCameraOn.value = !isCameraOn.value;
-};
+
 
 
 //get list poli for selectitem
@@ -70,12 +66,12 @@ async function captureImage() {
       canvasRef.value.height
     );
     const dataURL = canvasRef.value.toDataURL("image/png");
-
+    previewImage.value = dataURL
     // Convert dataURL to Blob and then to File
-    const blob = dataURLToBlob(dataURL);
-    const file = new File([blob], "capture.png", { type: "image/png" });
+    // const blob = dataURLToBlob(dataURL);
+    // const file = new File([blob], "capture.png", { type: "image/png" });
 
-    useOcr(file);
+    useOcr();
   }
 }
 function dataURLToBlob(dataURL: string) {
@@ -90,56 +86,37 @@ function dataURLToBlob(dataURL: string) {
 }
 
 //scan bpjs feature
-const apiOcrScan = "http://localhost:8000/scan";
-const imageToScan = reactive({
-  file: [],
-});
+const apiOcrScanKis = "http://localhost:8000/scan-kis-gemini";
+const apiOcrScanBpjs = "http://localhost:8000/scan-bpjs";
 
-async function useOcr(imageBlob: Blob) {
+
+async function useOcr() {
   isLoading.value = true;
-  const formData = new FormData();
-  formData.append("file", imageBlob);
+  if (!previewImage.value) return;
+      isLoading.value = true;
 
+      const imageBlob = dataURLToBlob(previewImage.value);
+  const formData = new FormData();
+  formData.append("file", imageBlob, "capture.png");
+  
   try {
-    const response = await axios.post(apiOcrScan, formData, {
+    const response = await axios.post( apiOcrScanKis, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    const responseOcr = response.data.result;
-    let result = [];
-    let alamatGabungan = "";
-    for (let i = 0; i < responseOcr.length; i++) {
-      if (
-        responseOcr[i] === "Nomor Kartu" ||
-        responseOcr[i] === "Nama" ||
-        responseOcr[i] === "Tanggal lahir" ||
-        responseOcr[i] === "NIK" ||
-        responseOcr[i] === "Faskes Tingkat"
-      ) {
-        // Push elemen berikutnya ke array baru
-        result.push(responseOcr[i + 1]);
-      }
-      if (responseOcr[i] === "Alamat") {
-        let j = i + 1;
-        alamatGabungan = responseOcr[j];
-        while (
-          responseOcr[j + 1] !== "Tanggal lahir" &&
-          j < responseOcr.length - 1
-        ) {
-          j++;
-          alamatGabungan += " " + responseOcr[j];
-        }
-        result.push(alamatGabungan);
-        i = j;
-      }
+    const responseOcr = response.data;
+    if (isBpjsTypeKis) {
+      registerPassein.nomor_bpjs = responseOcr.no_kartu
+      registerPassein.nama_passien = responseOcr.nama
+      registerPassein.alamat = responseOcr.alamat
+      registerPassein.nik = responseOcr.nik
+      registerPassein.tanggal_lahir = responseOcr.tanggal_lahir
+      registerPassein.faskes_tingkat_satu = responseOcr.faskes
+      registerPassein.kelas_rawat =  "..."
+    }else{
+      
     }
-
-    registerPassein.nomor_bpjs = result[0];
-    registerPassein.nama_passien = result[1];
-    registerPassein.tanggal_lahir = result[3];
-    registerPassein.faskes_tingkat_satu = result[6];
-    registerPassein.alamat = alamatGabungan;
     isLoading.value = false;
   } catch (error) {
     isLoading.value = false;
@@ -240,43 +217,13 @@ onMounted(() => {
       </v-btn>
     </v-col>
     <v-col v-show="isCameraOn" cols="12">
-      <video ref="videoRef" width="400" height="300"></video>
-      <canvas
-        ref="canvasRef"
-        width="400"
-        height="300"
-        style="display: none"
-      ></canvas>
+      <video ref="videoRef" width="800" height="500" style="max-width: 100%; height: auto;"></video>
+      <canvas ref="canvasRef" width="800" height="500" style="display: none;"></canvas>
       <v-btn :loading="isLoading" color="primary" @click="captureImage"
         >Scan</v-btn
       >
     </v-col>
-    <!-- <v-col class="mb-4" cols="12" v-if="isCameraOn">
-      <camera :resolution="{ width: 375, height: 812 }" @snapshot="takePhoto">
-      </camera>
-      <v-btn color="primary" @click="takePhoto">scan bpjs</v-btn>
-    </v-col> -->
-
-    <!-- <v-col cols="12" v-if="capturedImage">
-      
-      <img
-        :src="capturedImage"
-        alt="Captured Image"
-        style="max-width: 100%; margin-top: 10px"
-      />
-    </v-col> -->
-
-    <!-- <v-col cols="12">
-      <v-file-input
-        v-model="imageToScan.file"
-        label="file kartu"
-        variant="outlined"
-        color="primary"
-        accept="image/*"
-        prepend-icon="mdi-camera"
-      ></v-file-input>
-      <v-btn :loading="isLoading" color="primary" @click="useOcr">Scan</v-btn>
-    </v-col> -->
+   
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Nomor BPJS</v-label>
       <v-text-field
@@ -296,7 +243,7 @@ onMounted(() => {
         color="primary"
       ></v-text-field>
     </v-col>
-    <v-col cols="12" v-show="isBpjsTypeKis">
+    <v-col cols="12" >
       <v-label class="font-weight-bold mb-1" >NIK</v-label>
       <v-text-field
         v-model="registerPassein.nik"
@@ -306,7 +253,7 @@ onMounted(() => {
         color="primary"
       ></v-text-field>
     </v-col>
-    <v-col cols="12" v-show="!isBpjsTypeKis">
+    <v-col cols="12" v-show="isBpjsTypeKis">
       <v-label class="font-weight-bold mb-1">alamat</v-label>
       <v-text-field
         v-model="registerPassein.alamat"
@@ -336,7 +283,7 @@ onMounted(() => {
         color="primary"
       ></v-text-field>
     </v-col>
-    <v-col cols="12" v-show="isBpjsTypeKis">
+    <v-col cols="12" v-show="!isBpjsTypeKis">
       <v-label class="font-weight-bold mb-1" >Kelas Rawat</v-label>
       <v-text-field
         v-model="registerPassein.kelas_rawat"

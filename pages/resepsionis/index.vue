@@ -13,9 +13,9 @@ definePageMeta({
             rounded="md"
             elevation="10"
             class="px-sm-1 px-0 withbg mx-auto"
-            max-width="500"
+            max-width="1000"
           >
-            <v-card-item class="pa-sm-8">
+            <v-card-item class="pa-sm-12">
               <div class="d-flex justify-center py-4">
                 <!-- <LayoutFullLogo /> -->
                 <v-card-title class="text-h6 text-md-h5 text-lg-h4"

@@ -177,7 +177,7 @@ onMounted(() => {
               </v-col>
               <v-col cols="12">
                 <v-select
-                  label="Pilih Poli"
+                  label="Pilih Role"
                   v-model="userRequest.role"
                   :items="selectItem"
                   color="deep-purple"

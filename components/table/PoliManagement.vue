@@ -16,8 +16,14 @@ async function getListPoli() {
     axios
       .get(`${baseUrl}/poli`)
       .then(function (response) {
-        listPoli.value = response.data.data;
-        console.log(response.data);
+        if (response.data.message == "Data tidak ditemukan") {
+          listPoli.value = []
+        }else{
+          listPoli.value = response.data.data;
+
+        }
+       
+        
       })
       .catch(function (error) {
 

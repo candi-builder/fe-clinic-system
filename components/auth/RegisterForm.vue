@@ -12,6 +12,9 @@ const baseUrl = config.public.baseUrl;
 const selectItem = ref<SelectItem[]>();
 const videoRef = ref<HTMLVideoElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
+
+const isBpjsTypeKis = ref<boolean>(true)
+
 async function startCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -28,15 +31,19 @@ const registerPassein = reactive({
   nomor_bpjs: "",
   nama_passien: "",
   tanggal_lahir: "",
-  alamat: "",
+  alamat: null as string | null,
   faskes_tingkat_satu: "",
   poli_id: null as number | null,
   status: "menunggu",
+  kelas_rawat:null as string | null,
+  nik:null as string | null
 });
+
 //handle camera
 const handleCamera = () => {
   isCameraOn.value = !isCameraOn.value;
 };
+
 
 //get list poli for selectitem
 const listPoli = ref<PoliResponse[]>([]);
@@ -180,7 +187,7 @@ async function postRegisterPassien() {
       registerPassein.nomor_bpjs = "";
       registerPassein.nama_passien = "";
       registerPassein.tanggal_lahir = "";
-      registerPassein.alamat = "";
+      registerPassein.alamat = null;
       registerPassein.faskes_tingkat_satu = "";
       registerPassein.status = "WAITING";
     })
@@ -196,6 +203,8 @@ function cameraTogle() {
     startCamera();
   }
 }
+
+
 onMounted(() => {
   getListPoli();
 });
@@ -208,7 +217,23 @@ onMounted(() => {
       :text="snackbarText"
       :timeout="2000"
     ></MySnackbar>
-
+    <v-col cols="12">
+      <h2>Pilih Tipe Kartu</h2>
+    </v-col>
+    
+    <v-col cols="6 " class="d-flex gap-2">
+      <v-btn color="primary" class="w-100" size="large" :disabled="isBpjsTypeKis"  @click="isBpjsTypeKis = true">
+        KIS
+      </v-btn>
+  
+    </v-col>
+    <v-col cols="6 " class="d-flex gap-2">
+      <v-btn color="secondary" :disabled="!isBpjsTypeKis" class="w-100" size="large"  @click="isBpjsTypeKis = false">
+        BPJS
+      </v-btn>
+  
+    </v-col>  
+  
     <v-col cols="12">
       <v-btn color="primary" size="large" block flat @click="cameraTogle">
         {{ isCameraOn?  'Close Camera' : 'Open Camera' }}
@@ -233,7 +258,7 @@ onMounted(() => {
     </v-col> -->
 
     <!-- <v-col cols="12" v-if="capturedImage">
-      <h2>Captured Photo:</h2>
+      
       <img
         :src="capturedImage"
         alt="Captured Image"
@@ -271,7 +296,17 @@ onMounted(() => {
         color="primary"
       ></v-text-field>
     </v-col>
-    <v-col cols="12">
+    <v-col cols="12" v-show="isBpjsTypeKis">
+      <v-label class="font-weight-bold mb-1" >NIK</v-label>
+      <v-text-field
+        v-model="registerPassein.nik"
+        variant="outlined"
+        type="text"
+        hide-details
+        color="primary"
+      ></v-text-field>
+    </v-col>
+    <v-col cols="12" v-show="!isBpjsTypeKis">
       <v-label class="font-weight-bold mb-1">alamat</v-label>
       <v-text-field
         v-model="registerPassein.alamat"
@@ -301,6 +336,17 @@ onMounted(() => {
         color="primary"
       ></v-text-field>
     </v-col>
+    <v-col cols="12" v-show="isBpjsTypeKis">
+      <v-label class="font-weight-bold mb-1" >Kelas Rawat</v-label>
+      <v-text-field
+        v-model="registerPassein.kelas_rawat"
+        variant="outlined"
+        type="text"
+        hide-details
+        color="primary"
+      ></v-text-field>
+    </v-col>
+
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Poli</v-label>
       <v-select

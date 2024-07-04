@@ -22,7 +22,7 @@ definePageMeta({
                   >Klinik Islamic Village</v-card-title
                 >
               </div>
-              <div class="text-body-1 text-muted text-center mb-3">
+              <div class="text-body-5 text-muted text-center mb-3">
                 Registrasi Passien
               </div>
               <AuthRegisterForm />

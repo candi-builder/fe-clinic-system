@@ -87,7 +87,7 @@ function dataURLToBlob(dataURL: string) {
 
 //scan bpjs feature
 const apiOcrScanKis = "http://localhost:8000/scan-kis-gemini";
-const apiOcrScanBpjs = "http://localhost:8000/scan-bpjs";
+const apiOcrScanBpjs = "http://localhost:8000/scan-bpjs-gemini";
 
 
 async function useOcr() {
@@ -100,13 +100,13 @@ async function useOcr() {
   formData.append("file", imageBlob, "capture.png");
   
   try {
-    const response = await axios.post( apiOcrScanKis, formData, {
+    const response = await axios.post( isBpjsTypeKis.value == true ? apiOcrScanKis : apiOcrScanBpjs, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
     const responseOcr = response.data;
-    if (isBpjsTypeKis) {
+    if (isBpjsTypeKis.value) {
       registerPassein.nomor_bpjs = responseOcr.no_kartu
       registerPassein.nama_passien = responseOcr.nama
       registerPassein.alamat = responseOcr.alamat
@@ -115,7 +115,14 @@ async function useOcr() {
       registerPassein.faskes_tingkat_satu = responseOcr.faskes
       registerPassein.kelas_rawat =  "..."
     }else{
-      
+      registerPassein.nomor_bpjs = responseOcr.no_kartu
+      registerPassein.nama_passien = responseOcr.nama
+      registerPassein.alamat = '..'
+      registerPassein.tanggal_lahir = responseOcr.tanggal_lahir
+      registerPassein.nik = responseOcr.nik
+       registerPassein.faskes_tingkat_satu = responseOcr.faskes
+      registerPassein.kelas_rawat =  responseOcr.kelas_rawat
+
     }
     isLoading.value = false;
   } catch (error) {
@@ -268,7 +275,7 @@ onMounted(() => {
       <v-text-field
         v-model="registerPassein.tanggal_lahir"
         variant="outlined"
-        type="date"
+        type="text"
         hide-details
         color="primary"
       ></v-text-field>

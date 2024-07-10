@@ -28,7 +28,6 @@ async function getListPoli() {
         if ( response.data.data == undefined) {
           listPoli.value = []
         }else{
-
           listPoli.value = response.data.data;
         }
       })

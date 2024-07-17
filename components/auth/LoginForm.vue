@@ -12,12 +12,16 @@ const router = useRouter();
 const snackbarVisible = ref(false);
 const snackbarText = ref<string>("");
 const isLoading = ref<boolean>(false);
-  console.log(getUserSession());
+console.log(getUserSession());
 
 async function navigationBaseOnRole(role: string) {
   console.log(role.toLocaleLowerCase());
+  if (role.toLocaleLowerCase() != 'resepsionis') {
+    router.push({ path: `/${role.toLocaleLowerCase()}` });
+    return;
+  }
+  router.push({ path: `/pendaftaran` });
 
-  router.push({ path: `/${role.toLocaleLowerCase()}` });
 }
 async function login() {
   isLoading.value = true;
@@ -49,41 +53,19 @@ async function login() {
 
 <template>
   <v-row class="d-flex mb-3">
-    <MySnackbar
-      v-model:modelValue="snackbarVisible"
-      :text="snackbarText"
-      :timeout="2000"
-    ></MySnackbar>
+    <MySnackbar v-model:modelValue="snackbarVisible" :text="snackbarText" :timeout="2000"></MySnackbar>
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Username</v-label>
-      <v-text-field
-        v-model="loginRequest.username"
-        variant="outlined"
-        hide-details
-        color="primary"
-      ></v-text-field>
+      <v-text-field v-model="loginRequest.username" variant="outlined" hide-details color="primary"></v-text-field>
     </v-col>
     <v-col cols="12">
       <v-label class="font-weight-bold mb-1">Password</v-label>
-      <v-text-field
-        v-model="loginRequest.password"
-        variant="outlined"
-        type="password"
-        hide-details
-        color="primary"
-      ></v-text-field>
+      <v-text-field v-model="loginRequest.password" variant="outlined" type="password" hide-details
+        color="primary"></v-text-field>
     </v-col>
     <v-col cols="12" class="pt-0">
-      <v-btn
-        @click="login"
-        :disabled="isLoading"
-        :loading="isLoading"
-        color="primary"
-        size="large"
-        block
-        flat
-        >Masuk</v-btn
-      >
+      <v-btn @click="login" :disabled="isLoading" :loading="isLoading" color="primary" size="large" block
+        flat>Masuk</v-btn>
     </v-col>
   </v-row>
 </template>

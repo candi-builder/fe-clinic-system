@@ -15,7 +15,7 @@ const selectItem = [
     value: "DOKTER",
   },
   {
-    title: "Resepsionis",
+    title: "Pendaftaran",
     value: "RESEPSIONIS",
   },
   {
@@ -135,7 +135,7 @@ onMounted(() => {
             <td>
               <div class="">
                 <h6 class="text-subtitle-1 font-weight-bold">
-                  {{ item.username }}
+                  {{ item.username   }}
                 </h6>
               </div>
             </td>
@@ -143,7 +143,7 @@ onMounted(() => {
               <h6 class="text-body-1 text-muted">{{ item.fullname }}</h6>
             </td>
             <td>
-              <h6 class="text-body-1 font-weight-bold">{{ item.role }}</h6>
+              <h6 class="text-body-1 font-weight-bold">{{ item.role == 'RESEPSIONIS' ? 'PENDAFTARAN': item.role  }}</h6>
             </td>
             <td class="d-flex gap-2">
               <v-btn @click="resetPassword(item.uuid)" color="primary">Reset Password</v-btn>

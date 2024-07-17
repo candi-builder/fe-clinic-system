@@ -25,40 +25,44 @@ async function getListPoli() {
     axios
       .get(`${baseUrl}/poli/${detailParam}`)
       .then(function (response) {
-        if ( response.data.data == undefined) {
+        if (response.data.data == undefined) {
           listPoli.value = []
-        }else{
+        } else {
+
           listPoli.value = response.data.data;
+
         }
       })
       .catch(function (error) {
         console.log(error);
       });
-  } catch (error) {}
+  } catch (error) { }
 }
 async function getListDoctor() {
   try {
     axios
       .get(`${baseUrl}/users`)
       .then(function (response) {
-        listDoctor.value = listDoctor.value = response.data.data.filter(
-          (user: UserResponse) => user.role === "DOKTER"
-        );
-        selectItem.value = listDoctor.value.map((user: UserResponse) => ({
-          title: `${user.fullname}`,
-          value: user.uuid,
-        }));
-        console.log(listDoctor);
+        if (response.data.data != undefined) {
+          listDoctor.value = listDoctor.value = response.data.data.filter(
+            (user: UserResponse) => user.role === "DOKTER"
+          );
+          selectItem.value = listDoctor.value.map((user: UserResponse) => ({
+            title: `${user.fullname}`,
+            value: user.uuid,
+          }));
+        }
+
       })
       .catch(function (error) {
         console.log(error);
       });
-  } catch (error) {}
+  } catch (error) { }
 }
 
 async function addPoli() {
   console.log(detailParam);
-  
+
   try {
     axios
       .post(`${baseUrl}/poli/add-member/${detailParam}`, poliRequest)
@@ -71,32 +75,26 @@ async function addPoli() {
       })
       .catch(function (error) {
         console.log(error);
-        snackbarText.value = error;
+        snackbarText.value = error.response.data.message;
         snackbarVisible.value = true;
+        console.log(error);
+        
       });
-  } catch (error) {}
+  } catch (error) { }
 }
 
-async function goToDetail(id: string) {
-  router.push(`poli/${id}`);
-}
+
 onMounted(() => {
   getListDoctor();
   getListPoli();
 });
 </script>
 <template>
-  <MySnackbar
-    v-model:modelValue="snackbarVisible"
-    :text="snackbarText"
-    :timeout="2000"
-  ></MySnackbar>
+  <MySnackbar v-model:modelValue="snackbarVisible" :text="snackbarText" :timeout="2000"></MySnackbar>
   <v-card elevation="10" class="">
     <v-card-item class="pa-6">
       <div class="d-flex justify-space-between align-center">
-        <v-card-title class="text-h5 pt-sm-2 pb-7"
-          >List Member Poli {{ currentPoliName }}</v-card-title
-        >
+        <v-card-title class="text-h5 pt-sm-2 pb-7">List Member Poli {{ currentPoliName }}</v-card-title>
         <v-btn color="success" @click="dialog = true">Tambah member</v-btn>
       </div>
       <v-table class="month-table">
@@ -129,13 +127,8 @@ onMounted(() => {
           <v-card-text>
             <v-row dense>
               <v-col cols="12">
-                <v-select
-                  v-model="poliRequest.user_id"
-                  :items="selectItem"
-                  item-text="title"
-                  item-value="value"
-                  label="Select Doctor"
-                ></v-select>
+                <v-select v-model="poliRequest.user_id" :items="selectItem" item-text="title" item-value="value"
+                  label="Select Doctor"></v-select>
               </v-col>
             </v-row>
           </v-card-text>
@@ -145,17 +138,9 @@ onMounted(() => {
           <v-card-actions>
             <v-spacer></v-spacer>
 
-            <v-btn text="Close" variant="plain" @click="dialog = false"
-              >tutup</v-btn
-            >
+            <v-btn text="Close" variant="plain" @click="dialog = false">tutup</v-btn>
 
-            <v-btn
-              color="primary"
-              text="Save"
-              variant="tonal"
-              @click="addPoli()"
-              >kirim</v-btn
-            >
+            <v-btn color="primary" text="Save" variant="tonal" @click="addPoli()">kirim</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

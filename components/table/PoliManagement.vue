@@ -42,7 +42,7 @@ async function addPoli() {
       })
       .catch(function (error) {
         console.log(error);
-        snackbarText.value = error
+        snackbarText.value =  error.response.data.message
         snackbarVisible.value = true
       });
   } catch (error) {}
